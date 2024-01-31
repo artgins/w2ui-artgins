@@ -12,12 +12,13 @@ const del      = require('del')
 // const babel    = require('gulp-babel')
 // const { exec } = require('child_process')
 const comments = {
-    w2ui : '/* w2ui 2.0.x (nightly) ('+ (new Date()).toLocaleString('en-us') +') (c) http://w2ui.com, vitmalina@gmail.com */\n'
+    w2ui : '/* w2ui 2.0.x (nightly) ('+ (new Date()).toLocaleString('en-us') +') (c) http://w2ui.com, vitmalina@gmail.com */\n',
+    w2ui : '/* w2ui 2.0.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */\n',
 }
 
 const legacy_replace = `export {
     w2ui, w2utils, query, w2locale, w2event, w2base,
-    w2popup, w2alert, w2confirm, w2prompt, Dialog,
+    w2popup, w2alert, w2confirm, w2prompt, Dialog, w2window,
     w2tooltip, w2menu, w2color, w2date, Tooltip,
     w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
 }`
@@ -40,14 +41,14 @@ if (global) {
 }
 })(self, {
     w2ui, w2utils, query, w2locale, w2event, w2base,
-    w2popup, w2alert, w2confirm, w2prompt, Dialog,
+    w2popup, w2alert, w2confirm, w2prompt, Dialog, w2window,
     w2tooltip, w2menu, w2color, w2date, Tooltip,
     w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
 });`
 
 const exports_es6 = `export {
     w2ui, w2utils, query, w2locale, w2event, w2base,
-    w2popup, w2alert, w2confirm, w2prompt, Dialog,
+    w2popup, w2alert, w2confirm, w2prompt, Dialog, w2window,
     w2tooltip, w2menu, w2color, w2date, Tooltip,
     w2toolbar, w2sidebar, w2tabs, w2layout, w2grid, w2form, w2field
 }`
@@ -65,7 +66,8 @@ const files_es6 = [
     'src/w2layout.js',
     'src/w2grid.js',
     'src/w2form.js',
-    'src/w2field.js'
+    'src/w2field.js',
+    'src/w2window.js'
 ]
 const files_legacy = Array.from(files_es6)
 files_legacy.push('src/w2compat.js')
