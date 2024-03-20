@@ -423,6 +423,14 @@ class w2toolbar extends w2base {
                     w2tooltip.hide(this.name + '-drop')
                     return
                 } else {
+                    /**
+                     * Need to clear all previous event listeners, since tooltip name is reused and it finds the old configuration and
+                     * extends it. If events are not cleared, it would trigger old listeners too.
+                     */
+                    let overlay = w2tooltip.get(this.name + '-drop')
+                    if (overlay?.displayed) overlay.hide()
+                    overlay?.listeners?.splice(0)
+
                     // timeout is needed to make sure previous overlay hides
                     setTimeout(() => {
                         let hideDrop = (id, btn) => {
@@ -813,7 +821,7 @@ class w2toolbar extends w2base {
                     <div id="tb_${this.name}_item_${item.id}" class="${classes.join(' ')} ${(item.class ? item.class : '')}"
                         style="${(item.hidden ? 'display: none' : '')} ${item.type == 'label' ? (item.style ?? '') : ''}"
                         ${!item.disabled
-                            ? `data-click='["click","${item.id}"]'
+                            ? `data-click='["click","${item.id}", "event"]'
                                data-mouseenter='["mouseAction", "event", "this", "Enter", "${item.id}"]'
                                data-mouseleave='["mouseAction", "event", "this", "Leave", "${item.id}"]'
                                data-mousedown='["mouseAction", "event", "this", "Down", "${item.id}"]'

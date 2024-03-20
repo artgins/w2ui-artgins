@@ -2040,6 +2040,8 @@ class w2grid extends w2base {
         let last_search = this.last.search
         let hasHiddenSearches = false
         let overlay = query(`#w2overlay-${this.name}-search-overlay`)
+        // if emty sting, same as no search
+        if (value === '') value = null
         // add hidden searches
         for (let i = 0; i < this.searches.length; i++) {
             if (!this.searches[i].hidden || this.searches[i].value == null) continue
@@ -2765,6 +2767,15 @@ class w2grid extends w2base {
             this.last.label = search.label
         }
         el.attr('placeholder', w2utils.lang('Search') + ' ' + w2utils.lang(search.label || search.caption || search.field, true))
+
+        // if there is pre-selected search
+        if (this.searchSelected) {
+            query(this.box).find(`#grid_${this.name}_search_all`).val(' ').prop('readOnly', true)
+            query(this.box).find(`#grid_${this.name}_search_name`).show().find('.name-text').html(this.searchSelected.text)
+        } else {
+            query(this.box).find(`#grid_${this.name}_search_all`).prop('readOnly', false)
+            query(this.box).find(`#grid_${this.name}_search_name`).hide().find('.name-text').html('')
+        }
     }
 
     // clears records and related params
@@ -2969,9 +2980,9 @@ class w2grid extends w2base {
             // default behavior
             if (response.status && response.status != 200) {
                 response.json().then((data) => {
-                  self.error(response.status + ': ' + data.message ?? response.statusText)
+                    self.error(response.status + ': ' + data.message ?? response.statusText)
                 }).catch(() => {
-                  self.error(response.status + ': ' + response.statusText)
+                    self.error(response.status + ': ' + response.statusText)
                 })
             } else {
                 console.log('ERROR: Server communication failed.',
@@ -3772,11 +3783,13 @@ class w2grid extends w2base {
             if (query(event.target).closest('td').hasClass('w2ui-col-select')) fselect = true
             // clear other if necessary
             if (((!event.ctrlKey && !event.shiftKey && !event.metaKey && !fselect) || !this.multiSelect) && !this.showSelectColumn) {
-                if (this.selectType != 'row' && !last.columns[ind]?.includes(column)) flag = false
-                    this.selectNone(true) // no need to trigger select event
+                if (this.selectType != 'row' && !last.columns[ind]?.includes(column)) {
+                    flag = false
+                }
                 if (flag === true && sel.length == 1) {
                     this.unselect({ recid: recid, column: column })
                 } else {
+                    this.selectNone(true) // no need to trigger select event
                     this.select({ recid: recid, column: column })
                 }
             } else {
@@ -3873,7 +3886,7 @@ class w2grid extends w2base {
         if (this.show.columnMenu) {
             w2menu.show({
                 type: 'check',
-                anchor: document.body,
+                contextMenu: true,
                 originalEvent: event,
                 items: this.initColumnOnOff()
             })
@@ -4562,7 +4575,7 @@ class w2grid extends w2base {
         // default action
         if (this.contextMenu?.length > 0) {
             w2menu.show({
-                anchor: document.body,
+                contextMenu: true,
                 originalEvent: event,
                 items: this.contextMenu
             })
@@ -5278,9 +5291,9 @@ class w2grid extends w2base {
                 let ind = this.getSearch(sd.field, true)
                 let sf = this.searches[ind]
                 let display
-                if (Array.isArray(sd.value)) {
+                if (sf?.type == 'enum' && Array.isArray(sd.value)) {
                     display = `<span class="grid-search-count">${sd.value.length}</span>`
-                } else if (sf && sf.type == 'list') {
+                } else if (sf?.type == 'list') {
                     display = !!sd.text && sd.text !== sd.value ? `: ${sd.text}` : `: ${sd.value}`
                 } else {
                     display = `: ${sd.value}`
@@ -5386,7 +5399,7 @@ class w2grid extends w2base {
                     .toggleClass('w2ui-record-hover', event.type == 'mouseover')
             })
         }
-        if (w2utils.isIOS) {
+        if (w2utils.isMobile) {
             records.append(frecords)
                 .on('click', { delegate: 'tr' }, (event) => {
                     let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
@@ -5635,7 +5648,7 @@ class w2grid extends w2base {
                   '    <div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
                   '    <textarea id="grid_'+ this.name +'_focus" class="w2ui-grid-focus-input" '+
                             (this.tabIndex ? 'tabindex="' + this.tabIndex + '"' : '')+
-                            (w2utils.isIOS ? 'readonly' : '') +'></textarea>'+ // readonly needed on android not to open keyboard
+                            (w2utils.isMobile ? 'readonly' : '') +'></textarea>'+ // readonly needed on android not to open keyboard
                   '</div>')
         if (this.selectType != 'row') query(this.box).addClass('w2ui-ss')
         if (query(this.box).length > 0) query(this.box)[0].style.cssText += this.style
