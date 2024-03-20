@@ -2411,13 +2411,13 @@ class Utils {
         return ret
     }
     getStrWidth(str, styles, raw) {
-        query('body').append(`
-            <div id="_tmp_width" style="position: absolute; top: -9000px; ${styles || ''}">
-                ${raw ? str : this.encodeTags(str)}
-            </div>`)
-        let width = query('#_tmp_width')[0].clientWidth
-        query('#_tmp_width').remove()
-        return width
+        let div = query('body > #_tmp_width')
+        if (div.length === 0) {
+            query('body').append('<div id="_tmp_width" style="position: absolute; top: -9000px;"></div>')
+            div = query('body > #_tmp_width')
+        }
+        div.html(raw ? str : this.encodeTags(str)).attr('style', `position: absolute; top: -9000px; ${styles || ''}`)
+        return div[0].clientWidth
     }
     execTemplate(str, replace_obj) {
         if (typeof str !== 'string' || !replace_obj || typeof replace_obj !== 'object') {
@@ -4588,8 +4588,8 @@ class Tooltip {
         usePosition(found)
         if (isVertical) anchorAlignment()
         // user offset
-        top += parseFloat(options.offsetY)
-        left += parseFloat(options.offsetX)
+        top += parseFloat(options.offsetY * (found == 'top' ? -1 : 1))   // offset will always move from original position
+        left += parseFloat(options.offsetX * (found == 'left' ? -1 : 1)) // offset will always move from original position
         // make sure it is inside visible screen area
         screenAdjust()
         // adjust for scrollbar
@@ -5016,9 +5016,9 @@ class ColorTooltip extends Tooltip {
                 }
             })
         // color sliders events
-        let mDown = `${!w2utils.isIOS ? 'mousedown' : 'touchstart'}.w2color`
-        let mUp   = `${!w2utils.isIOS ? 'mouseup' : 'touchend'}.w2color`
-        let mMove = `${!w2utils.isIOS ? 'mousemove' : 'touchmove'}.w2color`
+        let mDown = `${!w2utils.isMobile ? 'mousedown' : 'touchstart'}.w2color`
+        let mUp   = `${!w2utils.isMobile ? 'mouseup' : 'touchend'}.w2color`
+        let mMove = `${!w2utils.isMobile ? 'mousemove' : 'touchmove'}.w2color`
         query(overlay.box).find('.palette, .rainbow, .alpha')
             .off('.w2color')
             .on(`${mDown}.w2color`, mouseDown)
@@ -5332,7 +5332,7 @@ class MenuTooltip extends Tooltip {
                 let dt = event.delegate.dataset
                 this.menuDown(overlay, event, dt.index, dt.parents)
             })
-            .on((w2utils.isIOS ? 'touchStart' : 'click') + '.w2menu', { delegate: '.w2ui-menu-item' }, event => {
+            .on((w2utils.isMobile ? 'touchStart' : 'click') + '.w2menu', { delegate: '.w2ui-menu-item' }, event => {
                 let dt = event.delegate.dataset
                 this.menuClick(overlay, event, parseInt(dt.index), dt.parents)
             })
@@ -5349,6 +5349,23 @@ class MenuTooltip extends Tooltip {
                         position: 'right|left',
                         hideOn: ['doc-click']
                     })
+                }
+                // hide previous sub-menu if any
+                let _menu = query(event.target).closest('.w2ui-menu').get(0)
+                if (_menu._evt && _menu._evt.target != event.target) {
+                    this.closeSubMenu(_menu._evt)
+                }
+                // show new sub-menu
+                if (dt.hassubmenu == 'yes') {
+                    let _evt = {
+                        index: parseInt(dt.index),
+                        parents: _menu.dataset.parents !== '' ? _menu.dataset.parents.split('-').map(ind => parseInt(ind)) : [],
+                        target: event.target,
+                        originalEvent: event,
+                        overlay
+                    }
+                    _menu._evt = _evt
+                    this.openSubMenu(_evt)
                 }
             })
             .on('mouseLeave.w2menu', event => {
@@ -5413,7 +5430,7 @@ class MenuTooltip extends Tooltip {
         })
         return { last, index, items, item: items[index], parents }
     }
-    getMenuHTML(options, items, subMenu, parentIndex) {
+    getMenuHTML(options) {
         if (options.spinner) {
             return `
             <div class="w2ui-menu">
@@ -5423,15 +5440,13 @@ class MenuTooltip extends Tooltip {
                 </div>
             </div>`
         }
-        if (!parentIndex) parentIndex = []
-        if (items == null) {
-            items = options.items
-        }
+        let parents = options.parents ?? []
+        let items = options.items
         if (!Array.isArray(items)) items = []
         let count = 0
         let icon = null
         let topHTML = ''
-        if (!subMenu && options.search) {
+        if (options.search) {
             topHTML += `
                 <div class="w2ui-menu-search">
                     <span class="w2ui-icon w2ui-icon-search"></span>
@@ -5439,17 +5454,16 @@ class MenuTooltip extends Tooltip {
                 </div>`
             items.forEach(item => item.hidden = false)
         }
-        if (!subMenu && options.topHTML) {
+        if (options.topHTML) {
             topHTML += `<div class="w2ui-menu-top">${options.topHTML}</div>`
         }
         let menu_html = `
             ${topHTML}
-            <div class="w2ui-menu ${(subMenu ? 'w2ui-sub-menu' : '')}" ${!subMenu ? `style="${options.menuStyle}"` : ''}
-                data-parent="${parentIndex}">
+            <div class="w2ui-menu" style="${options.menuStyle}" data-parents="${parents.join('-')}">
         `
         items.forEach((mitem, f) => {
             icon = mitem.icon
-            let index = (parentIndex.length > 0 ? parentIndex.join('-') + '-' : '') + f
+            let index = (parents.length > 0 ? parents.join('-') + '-' : '') + f
             if (icon == null) icon = null // icon might be undefined
             if (['radio', 'check'].indexOf(options.type) != -1 && !Array.isArray(mitem.items) && mitem.group !== false) {
                 if (mitem.checked === true) icon = 'w2ui-icon-check'; else icon = 'w2ui-icon-empty'
@@ -5457,7 +5471,6 @@ class MenuTooltip extends Tooltip {
             if (mitem.hidden !== true) {
                 let txt  = mitem.text
                 let icon_dsp = ''
-                let subMenu_dsp = ''
                 if (typeof options.render === 'function') txt = options.render(mitem, options)
                 if (typeof txt == 'function') txt = txt(mitem, options)
                 if (icon) {
@@ -5484,17 +5497,8 @@ class MenuTooltip extends Tooltip {
                     if (mitem.removable === true) {
                         count_dsp = '<span class="menu-remove">x</span>'
                     } else if (mitem.items != null) {
-                        let _items = []
-                        if (typeof mitem.items == 'function') {
-                            _items = mitem.items(mitem)
-                        } else if (Array.isArray(mitem.items)) {
-                            _items = mitem.items
-                        }
-                        count_dsp   = '<span style="background-color: transparent; border: transparent; box-shadow: none;"></span>' // used as drop arrow
-                        subMenu_dsp = `
-                            <div class="w2ui-sub-menu-box" style="${mitem.expanded ? '' : 'display: none'}">
-                                ${this.getMenuHTML(options, _items, true, parentIndex.concat(f))}
-                            </div>`
+                        classes.push('has-sub-menu')
+                        count_dsp = '<span style="background-color: transparent; border: transparent; box-shadow: none;"></span>' // used as drop arrow
                     } else {
                         if (mitem.count != null) count_dsp += '<span>' + mitem.count + '</span>'
                         if (mitem.hotkey != null) count_dsp += '<span class="menu-hotkey">' + mitem.hotkey + '</span>'
@@ -5502,23 +5506,14 @@ class MenuTooltip extends Tooltip {
                     }
                     if (mitem.disabled === true) classes.push('w2ui-disabled')
                     if (mitem._noSearchInside === true) classes.push('w2ui-no-search-inside')
-                    if (subMenu_dsp !== '') {
-                        classes.push('has-sub-menu')
-                        if (mitem.expanded) {
-                            classes.push('expanded')
-                        } else {
-                            classes.push('collapsed')
-                        }
-                    }
                     menu_html += `
                         <div index="${index}" class="${classes.join(' ')}" style="${mitem.style ? mitem.style : ''}"
-                            data-index="${f}" data-parents="${parentIndex.join('-')}">
-                                <div style="width: ${(subMenu ? 20 : 0) + parseInt(mitem.indent ?? 0)}px"></div>
+                            data-index="${f}" data-hasSubmenu="${mitem.items != null ? 'yes' : ''}">
+                                <div style="width: ${parseInt(mitem.indent ?? 0)}px"></div>
                                 ${icon_dsp}
                                 <div class="menu-text" colspan="${colspan}">${w2utils.lang(txt)}</div>
                                 <div class="menu-extra">${count_dsp}</div>
-                        </div>
-                        ${subMenu_dsp}`
+                        </div>`
                     count++
                 } else {
                     // horizontal line
@@ -5551,6 +5546,63 @@ class MenuTooltip extends Tooltip {
         }
         menu_html += '</div>'
         return menu_html
+    }
+    openSubMenu(event) {
+        let anchor = query(event.originalEvent.target).get(0)
+        let { overlay } = event
+        let { items } = overlay.options
+        // build sub-items list
+        let mitem = items[event.index]
+        let _items = []
+        if (typeof mitem.items == 'function') {
+            _items = mitem.items(mitem)
+        } else if (Array.isArray(mitem.items)) {
+            _items = mitem.items
+        }
+        let prev = w2menu.get(overlay.name + '-submenu')
+        if (prev) {
+            prev.hide()
+        }
+        query(event.target).addClass('expanded')
+        w2menu.show({
+            name: overlay.name + '-submenu',
+            anchor: anchor,
+            items: _items,
+            class: overlay.options.class,
+            offsetX: -7,
+            arrowSize: 0,
+            parentOverlay: overlay,
+            parents: [...event.parents, event.index],
+            position: 'right|left',
+            hideOn: ['doc-click']
+        })
+        .hide(evt => {
+            query(event.target).removeClass('expanded')
+        })
+        .select(evt => {
+            // overlay - is the top overlay, evt.detail.overlay -- current submenu
+            let parents = evt.detail.overlay.options.parents
+            let _overlay = overlay
+            while (_overlay.options.parentOverlay) {
+                _overlay = _overlay.options.parentOverlay
+            }
+            this.menuClick(_overlay, evt.detail.originalEvent, parseInt(evt.detail.index), parents)
+        })
+        // indicates if user cursor is over sub menu
+        setTimeout(() => {
+            query('#w2overlay-' + overlay.name + '-submenu')
+                .on('mouseenter', event => { event.target._keepSubOpen = true })
+                .on('mouseleave', event => { event.target._keepSubOpen = false })
+        }, 10)
+    }
+    closeSubMenu(event) {
+        let { overlay } = event
+        if (event.target._keepSubOpen !== true) {
+            let prev = w2menu.get(overlay.name + '-submenu')
+            if (prev) {
+                prev.hide()
+            }
+        }
     }
     // Refreshed only selected item highligh, used in keyboard navigation
     refreshIndex(name, instant) {
@@ -5904,19 +5956,19 @@ class MenuTooltip extends Tooltip {
         }
         return res
     }
-    menuDown(overlay, event, index, parentIndex) {
+    menuDown(overlay, event, index, parents) {
         let options = overlay.options
         let items   = options.items
         let icon    = query(event.delegate).find('.w2ui-icon')
         let menu    = query(event.target).closest('.w2ui-menu:not(.w2ui-sub-menu)')
-        if (typeof parentIndex == 'string' && parentIndex !== '') {
-            let ids = parentIndex.split('-')
+        if (typeof parents == 'string' && parents !== '') {
+            let ids = parents.split('-')
             ids.forEach(id => {
                 items = items[id].items
             })
         }
         if (typeof items == 'function') {
-            items = items({ overlay, index, parentIndex, event })
+            items = items({ overlay, index, parents, event })
         }
         let item = items[index]
         if (item == null || item.disabled) {
@@ -5959,10 +6011,13 @@ class MenuTooltip extends Tooltip {
         // highlight record
         if (!query(event.target).hasClass('menu-remove') && !query(event.target).hasClass('menu-help')) {
             menu.find('.w2ui-menu-item').removeClass('w2ui-selected')
-            query(event.delegate).addClass('w2ui-selected')
+            // click on the item that has submenu will not select the item
+            if (!query(event.delegate).hasClass('has-sub-menu')) {
+                query(event.delegate).addClass('w2ui-selected')
+            }
         }
     }
-    menuClick(overlay, event, index, parentIndex) {
+    menuClick(overlay, event, index, parents) {
         let options  = overlay.options
         let items    = options.items
         let $item    = query(event.delegate).closest('.w2ui-menu-item')
@@ -5970,16 +6025,19 @@ class MenuTooltip extends Tooltip {
         if (event.shiftKey || event.metaKey || event.ctrlKey) {
             keepOpen = true
         }
-        if (typeof parentIndex == 'string' && parentIndex !== '') {
-            let ids = parentIndex.split('-')
-            ids.forEach(id => {
+        if (typeof parents == 'string' && parents !== '') {
+            parents = parents.split('-')
+        } else if (!Array.isArray(parents)) {
+            parents = null
+        }
+        // parse through parents to get to right items
+        if (parents) {
+            parents.forEach(id => {
                 items = items[id].items
             })
-        } else {
-            parentIndex = null
         }
         if (typeof items == 'function') {
-            items = items({ overlay, index, parentIndex, event })
+            items = items({ overlay, index, parents, event })
         }
         let item = items[index]
         if (!item || (item.disabled && !query(event.target).hasClass('menu-remove'))) {
@@ -5988,7 +6046,7 @@ class MenuTooltip extends Tooltip {
         let edata
         if (query(event.target).hasClass('menu-remove')) {
             edata = this.trigger('remove', { originalEvent: event, target: overlay.name,
-                overlay, item, index, parentIndex, el: $item[0] })
+                overlay, item, index, parents, el: $item[0] })
             if (edata.isCancelled === true) {
                 return
             }
@@ -5996,28 +6054,17 @@ class MenuTooltip extends Tooltip {
             $item.remove()
         } else if ($item.hasClass('has-sub-menu')) {
             edata = this.trigger('subMenu', { originalEvent: event, target: overlay.name,
-                overlay, item, index, parentIndex, el: $item[0] })
+                overlay, item, index, parents, el: $item[0] })
             if (edata.isCancelled === true) {
                 return
             }
             keepOpen = true
-            if ($item.hasClass('expanded')) {
-                item.expanded = false
-                $item.removeClass('expanded').addClass('collapsed')
-                query($item.get(0).nextElementSibling).hide()
-                overlay.selected = parseInt($item.attr('index'))
-            } else {
-                item.expanded = true
-                $item.addClass('expanded').removeClass('collapsed')
-                query($item.get(0).nextElementSibling).show()
-                overlay.selected = parseInt($item.attr('index'))
-            }
         } else {
             // find items that are selected
             let selected = this.findChecked(options.items)
             overlay.selected = parseInt($item.attr('index'))
             edata = this.trigger('select', { originalEvent: event, target: overlay.name,
-                overlay, item, index, parentIndex, selected, keepOpen, el: $item[0] })
+                overlay, item, index, parents, selected, keepOpen, el: $item[0] })
             if (edata.isCancelled === true) {
                 return
             }
@@ -7069,6 +7116,13 @@ class w2toolbar extends w2base {
                     w2tooltip.hide(this.name + '-drop')
                     return
                 } else {
+                    /**
+                     * Need to clear all previous event listeners, since tooltip name is reused and it finds the old configuration and
+                     * extends it. If events are not cleared, it would trigger old listeners too.
+                     */
+                    let overlay = w2tooltip.get(this.name + '-drop')
+                    if (overlay?.displayed) overlay.hide()
+                    overlay?.listeners?.splice(0)
                     // timeout is needed to make sure previous overlay hides
                     setTimeout(() => {
                         let hideDrop = (id, btn) => {
@@ -7445,7 +7499,7 @@ class w2toolbar extends w2base {
                     <div id="tb_${this.name}_item_${item.id}" class="${classes.join(' ')} ${(item.class ? item.class : '')}"
                         style="${(item.hidden ? 'display: none' : '')} ${item.type == 'label' ? (item.style ?? '') : ''}"
                         ${!item.disabled
-                            ? `data-click='["click","${item.id}"]'
+                            ? `data-click='["click","${item.id}", "event"]'
                                data-mouseenter='["mouseAction", "event", "this", "Enter", "${item.id}"]'
                                data-mouseleave='["mouseAction", "event", "this", "Leave", "${item.id}"]'
                                data-mousedown='["mouseAction", "event", "this", "Down", "${item.id}"]'
@@ -8884,7 +8938,7 @@ class w2sidebar extends w2base {
                 <div class="w2ui-sidebar-top"></div>
                 <input id="sidebar_${this.name}_focus" ${(this.tabIndex ? 'tabindex="' + this.tabIndex + '"' : '')}
                     style="position: absolute; top: 0; right: 0; width: 1px; z-index: -1; opacity: 0"
-                    ${(w2utils.isIOS ? 'readonly' : '')}/>
+                    ${(w2utils.isMobile ? 'readonly' : '')}/>
                 <div class="w2ui-sidebar-body"></div>
                 <div class="w2ui-sidebar-bottom"></div>
             </div>`)
@@ -9826,15 +9880,13 @@ class w2tabs extends w2base {
                     'left': self.last.moving.$tab.get(0).getBoundingClientRect().left - self.last.moving.parentX
                 })
                 query(self.box).find('.w2ui-tab-close').show()
-                setTimeout(() => {
-                    $ghost.remove()
-                    $tab.css({ opacity: self.last.moving.opacity })
-                    // self.render()
-                    if (self.last.reordering) {
-                        edata.finish({ indexTo: self.last.moving.index })
-                    }
-                    self.last.reordering = false
-                }, 100)
+                $ghost.remove()
+                $tab.css({ opacity: self.last.moving.opacity })
+                // self.render()
+                if (self.last.reordering) {
+                    edata.finish({ indexTo: self.last.moving.index })
+                }
+                self.last.reordering = false
             })
     }
     scroll(direction, instant) {
@@ -13080,6 +13132,8 @@ class w2grid extends w2base {
         let last_search = this.last.search
         let hasHiddenSearches = false
         let overlay = query(`#w2overlay-${this.name}-search-overlay`)
+        // if emty sting, same as no search
+        if (value === '') value = null
         // add hidden searches
         for (let i = 0; i < this.searches.length; i++) {
             if (!this.searches[i].hidden || this.searches[i].value == null) continue
@@ -13788,6 +13842,14 @@ class w2grid extends w2base {
             this.last.label = search.label
         }
         el.attr('placeholder', w2utils.lang('Search') + ' ' + w2utils.lang(search.label || search.caption || search.field, true))
+        // if there is pre-selected search
+        if (this.searchSelected) {
+            query(this.box).find(`#grid_${this.name}_search_all`).val(' ').prop('readOnly', true)
+            query(this.box).find(`#grid_${this.name}_search_name`).show().find('.name-text').html(this.searchSelected.text)
+        } else {
+            query(this.box).find(`#grid_${this.name}_search_all`).prop('readOnly', false)
+            query(this.box).find(`#grid_${this.name}_search_name`).hide().find('.name-text').html('')
+        }
     }
     // clears records and related params
     clear(noRefresh) {
@@ -13985,9 +14047,9 @@ class w2grid extends w2base {
             // default behavior
             if (response.status && response.status != 200) {
                 response.json().then((data) => {
-                  self.error(response.status + ': ' + data.message ?? response.statusText)
+                    self.error(response.status + ': ' + data.message ?? response.statusText)
                 }).catch(() => {
-                  self.error(response.status + ': ' + response.statusText)
+                    self.error(response.status + ': ' + response.statusText)
                 })
             } else {
                 console.log('ERROR: Server communication failed.',
@@ -14771,11 +14833,13 @@ class w2grid extends w2base {
             if (query(event.target).closest('td').hasClass('w2ui-col-select')) fselect = true
             // clear other if necessary
             if (((!event.ctrlKey && !event.shiftKey && !event.metaKey && !fselect) || !this.multiSelect) && !this.showSelectColumn) {
-                if (this.selectType != 'row' && !last.columns[ind]?.includes(column)) flag = false
-                    this.selectNone(true) // no need to trigger select event
+                if (this.selectType != 'row' && !last.columns[ind]?.includes(column)) {
+                    flag = false
+                }
                 if (flag === true && sel.length == 1) {
                     this.unselect({ recid: recid, column: column })
                 } else {
+                    this.selectNone(true) // no need to trigger select event
                     this.select({ recid: recid, column: column })
                 }
             } else {
@@ -14869,7 +14933,7 @@ class w2grid extends w2base {
         if (this.show.columnMenu) {
             w2menu.show({
                 type: 'check',
-                anchor: document.body,
+                contextMenu: true,
                 originalEvent: event,
                 items: this.initColumnOnOff()
             })
@@ -15537,7 +15601,7 @@ class w2grid extends w2base {
         // default action
         if (this.contextMenu?.length > 0) {
             w2menu.show({
-                anchor: document.body,
+                contextMenu: true,
                 originalEvent: event,
                 items: this.contextMenu
             })
@@ -16228,9 +16292,9 @@ class w2grid extends w2base {
                 let ind = this.getSearch(sd.field, true)
                 let sf = this.searches[ind]
                 let display
-                if (Array.isArray(sd.value)) {
+                if (sf?.type == 'enum' && Array.isArray(sd.value)) {
                     display = `<span class="grid-search-count">${sd.value.length}</span>`
-                } else if (sf && sf.type == 'list') {
+                } else if (sf?.type == 'list') {
                     display = !!sd.text && sd.text !== sd.value ? `: ${sd.text}` : `: ${sd.value}`
                 } else {
                     display = `: ${sd.value}`
@@ -16334,7 +16398,7 @@ class w2grid extends w2base {
                     .toggleClass('w2ui-record-hover', event.type == 'mouseover')
             })
         }
-        if (w2utils.isIOS) {
+        if (w2utils.isMobile) {
             records.append(frecords)
                 .on('click', { delegate: 'tr' }, (event) => {
                     let index = query(event.delegate).attr('index') // don't read recid directly as it could be a number or a string
@@ -16574,7 +16638,7 @@ class w2grid extends w2base {
                   '    <div id="grid_'+ this.name +'_footer" class="w2ui-grid-footer"></div>'+
                   '    <textarea id="grid_'+ this.name +'_focus" class="w2ui-grid-focus-input" '+
                             (this.tabIndex ? 'tabindex="' + this.tabIndex + '"' : '')+
-                            (w2utils.isIOS ? 'readonly' : '') +'></textarea>'+ // readonly needed on android not to open keyboard
+                            (w2utils.isMobile ? 'readonly' : '') +'></textarea>'+ // readonly needed on android not to open keyboard
                   '</div>')
         if (this.selectType != 'row') query(this.box).addClass('w2ui-ss')
         if (query(this.box).length > 0) query(this.box)[0].style.cssText += this.style
@@ -21251,8 +21315,14 @@ class w2form extends w2base {
                     name: this.name + '_' + field.name + '_tb',
                     items,
                     onClick(event) {
+                        let value = event.detail.item.id
+                        let edata = self.trigger('change', { target: field.name, field: field.name, value, originalEvent: event })
+                        if (edata.isCancelled === true) {
+                            return
+                        }
                         self.record[field.name] = event.detail.item.id
                         self.setFieldValue(field.name, event.detail.item.id)
+                        edata.finish()
                     }
                 })
                 field.$el
@@ -21267,14 +21337,14 @@ class w2form extends w2base {
                     })
                     .on('keydown.form-input', event => {
                         let ind = query(event.target).prop('_index')
-                        switch(event.key) {
+                        switch (event.key) {
                             case 'ArrowLeft': {
                                 if (ind > 0) ind--
                                 query(`#${field.name}-tb .w2ui-tb-button`)
                                     .removeClass('over')
                                     .eq(ind)
                                     .addClass('over')
-                                    query(event.target).prop('_index', ind)
+                                query(event.target).prop('_index', ind)
                                 break
                             }
                             case 'ArrowRight': {

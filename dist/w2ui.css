@@ -424,6 +424,7 @@ input[type="checkbox"].w2ui-toggle.green:checked + div > div {
 * ---- Notification message ----
 */
 #w2ui-notify {
+  pointer-events: none;
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -435,6 +436,7 @@ input[type="checkbox"].w2ui-toggle.green:checked + div > div {
   overflow: hidden;
 }
 #w2ui-notify > div {
+  pointer-events: all;
   position: relative;
   background-color: #292828ba;
   color: #ffffff;
@@ -1001,6 +1003,7 @@ button.w2ui-btn:disabled {
   color: inherit;
   background-color: #fbfbfb;
 }
+.w2ui-menu .w2ui-menu-item.expanded,
 .w2ui-menu .w2ui-menu-item:hover {
   background-color: #eaeaea;
 }
@@ -1150,8 +1153,7 @@ button.w2ui-btn:disabled {
   border-bottom: 1px solid #d6e2e6;
   padding: 0 3px;
 }
-.w2ui-menu .expanded .menu-extra span,
-.w2ui-menu .collapsed .menu-extra span {
+.w2ui-menu .has-sub-menu .menu-extra span {
   position: relative;
   border-color: transparent;
   background-color: transparent;
@@ -1160,29 +1162,25 @@ button.w2ui-btn:disabled {
   border-radius: 0px;
   margin-left: 5px;
 }
-.w2ui-menu .expanded .menu-extra span:after,
-.w2ui-menu .collapsed .menu-extra span:after {
+.w2ui-menu .has-sub-menu .menu-extra span:after {
   content: "";
   position: absolute;
   border-left: 5px solid #808080;
   border-top: 5px solid transparent;
   border-bottom: 5px solid transparent;
-  transform: rotateZ(-90deg);
+  transform: rotateZ(0deg);
   pointer-events: none;
   margin-left: -2px;
-  margin-top: 3px;
+  margin-top: 4px;
 }
-.w2ui-menu .expanded .menu-extra span:hover,
-.w2ui-menu .collapsed .menu-extra span:hover {
+.w2ui-menu .has-sub-menu .menu-extra span:hover {
   border-color: transparent;
   background-color: transparent;
-}
-.w2ui-menu .collapsed .menu-extra span:after {
-  transform: rotateZ(90deg);
 }
 .w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-menu-item {
   color: #d9d9d9;
 }
+.w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-menu-item.expanded,
 .w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-menu-item:hover {
   background-color: #51545a;
 }
@@ -1208,8 +1206,7 @@ button.w2ui-btn:disabled {
   border-top: 1px solid #434444;
   border-bottom: 1px solid #434444;
 }
-.w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-menu .expanded .menu-extra span:after,
-.w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-menu .collapsed .menu-extra span:after {
+.w2ui-overlay .w2ui-overlay-body.w2ui-dark .w2ui-menu .has-sub-menu .menu-extra span:after {
   border-left: 5px solid #eaeaea;
 }
 /* date overlay */
