@@ -666,7 +666,8 @@ class w2sidebar extends w2base {
                     let ind1 = Math.min(this.selected.map(sel => chain.indexOf(sel))) // first item in selection
                     let ind2 = chain.indexOf(id)
                     for (let i = Math.min(ind1, ind2); i < chain.length && i <= Math.max(ind1, ind2); i++) {
-                        if (!this.selected.includes(chain[i])) {
+                        let node = this.get(chain[i])
+                        if (!this.selected.includes(chain[i]) && node.hidden != true) {
                             this.select(chain[i])
                         }
                     }
@@ -1063,7 +1064,7 @@ class w2sidebar extends w2base {
         node.addClass('w2ui-editing')
         text.addClass('w2ui-focus')
             .css('pointer-events', 'all')
-            .attr('contenteditable', 'plaintext-only')
+            .attr('contenteditable', w2utils.isFirefox ? 'true' : 'plaintext-only')
             .on('blur.node-editing', event => {
                 // timeout is needed to add to the end of the event loop
                 setTimeout(_rename, 0)
@@ -1447,7 +1448,16 @@ class w2sidebar extends w2base {
                         <div id="node_${nd.id}_sub" style="${nd.style}; ${!nd.hidden && nd.expanded ? '' : 'display: none;'}"></div>`
                 }
             } else {
-                if (nd.selected && !nd.disabled) obj.selected = nd.id
+                if (nd.selected && !nd.disabled) {
+                    if (obj.multi) {
+                        obj.selected ??= []
+                        if (!obj.selected.includes(nd.id)) {
+                            obj.selected.push(nd.id)
+                        }
+                    } else {
+                        obj.selected = nd.id
+                    }
+                }
                 // icon or image
                 let image = ''
                 if (icon) {
