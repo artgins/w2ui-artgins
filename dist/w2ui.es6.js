@@ -7545,7 +7545,11 @@ class w2toolbar extends w2base {
             }
             case 'html': {
                 html = `<div id="tb_${this.name}_item_${item.id}" class="w2ui-tb-html ${classes.join(' ')}"
-                            style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}">
+                            style="${(item.hidden ? 'display: none' : '')}; ${(item.style ? item.style : '')}"
+                            ${!item.disabled
+                                ? `data-click='["click","${item.id}", "event"]'`
+                                : ''}
+                            >
                             ${(typeof item.html == 'function' ? item.html.call(this, item) : item.html)}
                         </div>`
                 break
