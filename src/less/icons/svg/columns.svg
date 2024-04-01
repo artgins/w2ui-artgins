@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="365.55" height="370.85" version="1.1" viewBox="-40 -40 414 414.01" xmlns="http://www.w3.org/2000/svg">
- <polygon id="Rectangle" transform="translate(-40.5 -43.898)" points="71.5 420.5 0.5 420.5 0.5 0.5 71.5 0.5"/>
- <polygon transform="translate(-40.5 -43.898)" points="243 420.5 172 420.5 172 0.5 243 0.5"/>
- <polygon transform="translate(-40.5 -43.898)" points="414.5 420.5 343.5 420.5 343.5 0.5 414.5 0.5"/>
+<svg width="500" height="500" version="1.1" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+ <polygon id="Rectangle" transform="matrix(1.1137 0 0 1.1137 19.378 16.917)" points="71.5 420.5 0.5 420.5 0.5 0.5 71.5 0.5"/>
+ <polygon transform="matrix(1.1137 0 0 1.1137 19.378 16.917)" points="243 420.5 172 420.5 172 0.5 243 0.5"/>
+ <polygon transform="matrix(1.1137 0 0 1.1137 19.378 16.917)" points="414.5 420.5 343.5 420.5 343.5 0.5 414.5 0.5"/>
 </svg>
