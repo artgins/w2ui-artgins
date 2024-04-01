@@ -5,7 +5,7 @@ How to build w2ui
 
 ```shell
     cd w2ui-artgins # move to project source code
-    npm install 
+    npm install
 ```
 
 In `gulpfile.js` are the available commands:
@@ -27,7 +27,9 @@ exports.locales = tasks.locales
     gulp icons
 ```
 
-. To build (default): 
+To change the date of .css files then touch the file `src/less/w2ui.less`
+
+. To build (default):
 
 ```shell
     gulp
