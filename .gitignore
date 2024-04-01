@@ -1,16 +1,4 @@
 tmp/*
-dist/w2ui-2.0.css
-dist/w2ui-2.0.es6.js
-dist/w2ui-2.0.es6.min.js
-dist/w2ui-2.0.js
-dist/w2ui-2.0.min.css
-dist/w2ui-2.0.min.js
-dist/w2ui.css
-dist/w2ui.es6.js
-dist/w2ui.es6.min.js
-dist/w2ui.js
-dist/w2ui.min.css
-dist/w2ui.min.js
 
 node_modules/
 /npm-debug.log
