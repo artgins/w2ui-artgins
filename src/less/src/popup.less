@@ -29,7 +29,7 @@
         z-index: 1021;
         right: 0;
         margin: 10px 10px 0 0;
-        font-size: 17px;
+        font-size: calc(var(--font-size) + 5);
         .w2ui-popup-button {
             float: right;
             width: 25px;
@@ -67,7 +67,7 @@
         // text-align: center;
         .user-select;
         cursor: move;
-        font-size: 17px;
+        font-size: calc(var(--font-size) + 5);
         color: #555;
         z-index: 300;
     }
@@ -82,7 +82,7 @@
     }
 
     .w2ui-popup-body {
-        font-size: 12px;
+        font-size: var(--font-size);
         line-height: 130%;
         padding: 0px 7px 7px 7px;
         color: #000;
@@ -94,7 +94,7 @@
     }
 
     .w2ui-popup-buttons {
-        font-size: 11px;
+        font-size: var(--font-size);
         padding: 14px;
         border-radius: 0px 0px 6px 6px;
         border-top: 1px solid #eee;
@@ -122,12 +122,12 @@
     }
 
     .w2ui-msg-text {
-        font-size: 14px;
+        font-size: calc(var(--font-size) + 2);
         line-height: 1.5;
     }
 
     .w2ui-prompt {
-        font-size: 12px;
+        font-size: var(--font-size);
         padding: 0 10px;
         &.textarea {
             margin-top: 20px;
@@ -206,7 +206,7 @@
 
 // slide down message - not just popup, but also grid, form, layout
 .w2ui-message {
-    font-size: 12px;
+    font-size: var(--font-size);
     position: absolute;
     z-index: 250;
 
@@ -219,7 +219,7 @@
     overflow: auto;
 
     .w2ui-msg-text {
-        font-size: 14px;
+        font-size: calc(var(--font-size) + 2);
         line-height: 1.5;
     }
 

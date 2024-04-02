@@ -41,7 +41,7 @@
         display: none;
         color: #777777;
         width: 21px !important;
-        font-size: 13px;
+        font-size: calc(var(--font-size) + 1);
 
         &.show-search {
             display: block;
@@ -58,7 +58,7 @@
         overflow: auto;
         border: @list-border;
         border-radius: 3px;
-        font-size: 6px;    // need to be small for list
+        font-size: calc(var(--font-size) - 6); // need to be small for list
         line-height: 100%;
         box-sizing: border-box;
         pointer-events: all;
@@ -134,7 +134,7 @@
                     height: 16px;
                     margin: -2px -20px 0px 0px;
                     border-radius: 2px;
-                    font-size: 12px;
+                    font-size: var(--font-size);
                     border: 1px solid transparent;
                     &:hover {
                         background-color: #f6e5e5;

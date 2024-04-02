@@ -14,7 +14,7 @@
         border-radius: 4px;
         padding: 4px 8px;
         margin: 0px;
-        font-size: 13px;
+        font-size: calc(var(--font-size) + 1);
         font-family: OpenSans;
         color: white;
         border: 1px solid #303439;
@@ -142,7 +142,7 @@
             border-radius: 1px;
             margin: -1.5px 4px;
             text-align: center;
-            font-size: 15px;
+            font-size: calc(var(--font-size) + 3);
             padding-top: 4px;
             color: #7b7b7b;
 
@@ -187,7 +187,7 @@
                     left: -1px;
                     top: -8px;
                     color: white;
-                    font-size: 14px;
+                    font-size: calc(var(--font-size) + 2);
                     text-shadow: 0px 0px 2px #222;
                 }
             }
@@ -297,7 +297,7 @@
                     color: #666;
                 }
                 input {
-                    font-size: 12px;
+                    font-size: var(--font-size);
                     border-radius: 2px;
                     border: 1px solid #ccc;
                     width: 30px;
@@ -337,7 +337,7 @@
         top: 11px;
         left: 6px;
         color: #90819c;
-        font-size: 14px;
+        font-size: calc(var(--font-size) + 2);
     }
     #menu-search {
         width: 100%;
@@ -393,7 +393,7 @@
 
             span {
                 width: 18px;
-                font-size: 14px;
+                font-size:calc(var(--font-size) + 2);
                 color: @drop-menu-image-color;
                 display: inline-block;
                 padding-top: 1px;
@@ -445,7 +445,7 @@
                 user-select: none;
                 opacity: 0;
                 font-family: "Courier New";
-                font-size: 15px;
+                font-size: calc(var(--font-size) + 3);
                 &:hover {
                     background-color: #edfaf3;
                     border-color: #b3cfc1;
@@ -622,7 +622,7 @@
         color: #555;
         text-align: center;
         text-shadow: 1px 1px 1px #eee;
-        font-size: 16px;
+        font-size: calc(var(--font-size) + 4);
 
         cursor: pointer;
         .arrow-down {
@@ -692,7 +692,7 @@
             text-align: center;
             border: 1px solid transparent;
             border-radius: 3px;
-            font-size: 14px;
+            font-size: calc(var(--font-size) + 2);
         }
         #w2ui-jump-month {
             width: 186px;
@@ -805,7 +805,7 @@
                     content: " ";
                         position: absolute;
                         color: #b3b3b378;
-                        font-size: 27px;
+                        font-size: calc(var(--font-size) + 12);
                         padding: 0px;
                         font-family: verdana;
                         transform: translate(-15px, 15px) rotate(-36deg);

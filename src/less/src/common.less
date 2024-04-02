@@ -7,7 +7,7 @@
 .w2ui-reset {
     .box-sizing;
     font-family: @main-font-family;
-    font-size: 12px;
+    font-size: var(--font-size);
      * {
         line-height: 100%;
         .box-sizing();
@@ -24,7 +24,7 @@
     }
     table tr th, table tr td {
         font-family: @main-font-family;
-        font-size: 12px;
+        font-size: var(--font-size);
     }
     input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]),
     select, textarea {
@@ -34,7 +34,7 @@
         vertical-align: baseline;
         padding: 6px;
         margin: 0;
-        font-size: 12px;
+        font-size: var(--font-size);
         background-color: @input-background-color;
         border: @input-border;
         &:focus {
@@ -44,7 +44,7 @@
     select {
         padding: 5px;
         height: 26px;
-        font-size: 12px;
+        font-size: var(--font-size);
     }
 }
 
@@ -322,7 +322,7 @@ input[type="checkbox"].w2ui-toggle {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    font-size: 13px;
+    font-size: calc(var(--font-size) + 1);
     font-family: @main-font-family;
     opacity: 0.8;
     background-color: @lock-msg-background-color;
@@ -401,7 +401,7 @@ input[type="checkbox"].w2ui-toggle {
         max-height: 76px;
         min-width: 100px;
         max-width: 800px;
-        font-size: 16px;
+        font-size: calc(var(--font-size) + 2);
         text-shadow: 1px 0 0 black;
 
         a {
@@ -415,7 +415,7 @@ input[type="checkbox"].w2ui-toggle {
        span.w2ui-notify-close {
             padding: 6px 6px;
             border-radius: 3px;
-            font-size: 13px;
+            font-size: calc(var(--font-size) + 1);
             color: #c3c3c3;
             position: absolute;
             right: 5px;
