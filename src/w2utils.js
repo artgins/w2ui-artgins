@@ -44,7 +44,7 @@ class Utils {
 
         // some internal variables
         this.isMac = /Mac/i.test(navigator.platform)
-        this.isMobile = /(iphone|ipod|ipad|mobile|android)/i.test(navigator.userAgent)
+        this.isMobile = /(iphone|ipod|mobile|android)/i.test(navigator.userAgent)
         this.isIOS = /(iphone|ipod|ipad)/i.test(navigator.platform)
         this.isAndroid = /(android)/i.test(navigator.userAgent)
         this.isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
@@ -147,6 +147,7 @@ class Utils {
 
             'password'(value, params) {
                 let ret = ''
+                if (!value) return ret
                 for (let i = 0; i < value.length; i++) {
                     ret += '*'
                 }
@@ -900,12 +901,12 @@ class Utils {
         let pWidth = el.scrollWidth
         let pHeight = el.scrollHeight
         // if it is body and only has absolute elements, its height will be 0, need to lock entire window
+        let style = `height: ${pHeight}px; width: ${pWidth}px`
         if (el.tagName == 'BODY') {
-            if (pWidth < innerWidth) pWidth = innerWidth
-            if (pHeight < innerHeight) pHeight = innerHeight
+            style = 'position: fixed; right: 0; bottom: 0;'
         }
         query(box).prepend(
-            `<div class="w2ui-lock" style="height: ${pHeight}px; width: ${pWidth}px"></div>` +
+            `<div class="w2ui-lock" style="${style}"></div>` +
             '<div class="w2ui-lock-msg"></div>'
         )
         let $lock = query(box).find('.w2ui-lock')
