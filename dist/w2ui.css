@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 /* w2ui 2.0.x (nightly) (c) http://w2ui.com, vitmalina@gmail.com */
-=======
-/* w2ui 2.0.x (nightly) (5/3/2024, 4:41:35 PM) (c) http://w2ui.com, vitmalina@gmail.com */
->>>>>>> 65bd903964cd06b2f0b8b4a4f1365a741f7794f3
 /**
 * TODO:
 *  - remove default styling, only keep w2ui-* styles
@@ -3174,7 +3170,7 @@ textarea.w2ui-error {
 }
 .w2ui-popup.w2ui-non-blocking {
   border: 1px solid #c8c8c8;
-  box-shadow: 0px 0px 8px #e4e4e4;
+  box-shadow: 0 0 2px #555;
 }
 .w2ui-popup,
 .w2ui-popup * {
