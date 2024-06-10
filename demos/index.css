@@ -1,12 +1,36 @@
-:root {
-    --font-size: 16px;
-    --font-family: "sans-serif";
-    /*--font-size: 1em;*/
-    background-color: #EEEEEE;
+[data-theme=light],
+.theme-light {
+     CSS Variables */
+    /*background-color: #EEEEEE;*/
+    --my-text-color: black;
+    --modal-background-color: hsla(var(--bulma-scheme-h),var(--bulma-scheme-s),var(--bulma-scheme-invert-l),0.40);
+
+}
+
+[data-theme=dark],
+.theme-dark {
+    /* CSS Variables */
+    /*background-color: black;*/
+    --my-text-color: white;
+    --modal-background-color: hsla(var(--bulma-scheme-h),var(--bulma-scheme-s),var(--bulma-scheme-invert-l),0.90);
+}
+
+[data-theme=system],
+.theme-system {
+    /* CSS Variables */
+    /*background-color: var(--bulma-body-background-color);*/
+    --my-text-color: var(--bulma-body-color);
+    --modal-background-color: hsla(var(--bulma-scheme-h),var(--bulma-scheme-s),var(--bulma-scheme-invert-l),0.90);
 }
 
 
-* {
+:root {
+    --font-size: 16px;
+    --font-family: "sans-serif";
+}
+
+
+/** {
     margin: 0px;
     padding: 0px;
     box-sizing: border-box;
@@ -36,7 +60,7 @@ ul {
 
 p + p {
     margin-top: 1em;
-}
+}*/
 
 #demo_layout {
     position: absolute;
@@ -58,7 +82,7 @@ p + p {
 .prop, .property, .method {
     display: inline-block;
     padding: 1px 7px;
-    background-color: #eaeaea;
+/*     background-color: #eaeaea; */
     border-radius: 4px;
     color: #5b4d7b;
 }
@@ -72,7 +96,7 @@ p + p {
     margin-bottom: 10px;
     width: 100%;
     border: 0px;
-    background-color: #efefef;
+/*     background-color: #efefef; */
     line-height: 150%;
 }
 
@@ -94,18 +118,17 @@ p + p {
     -o-user-select: none;
     user-select: none;
     color: #777;
-    background-color: #F5F5F5;
+/*     background-color: #F5F5F5; */
     border-color: #D1D1D1;
     text-shadow: 0px 1px 1px #FFF;
 }
 .btn-source:hover {
     color: #333;
-    background-color: #EBEBEB;
+/*     background-color: #EBEBEB; */
     border-color: #aaa;
     text-shadow: 0px 1px 1px #FFF;
 }
 
-/* CODE MIRROR */
 
 .CodeMirror {
     font-size: 12px;
@@ -123,14 +146,13 @@ p + p {
 
 .CodeMirror-lines {
     line-height: 150%;
-    background-color: #fcfcfc;
+/*     background-color: #fcfcfc; */
 }
 
 .CodeMirror-code > div:nth-child(odd) {
-    background-color: #fff;
+/*     background-color: #fff; */
 }
 
-/* ------------ */
 
 table.list {
     margin: 20px 0px;
@@ -152,9 +174,8 @@ table.list td {
     background-color: transparent;
 }
 
-/* -- Demo Toolbar -- */
 
 #1layout_demo_layout_panel_left .w2ui-sidebar .w2ui-sidebar-body .w2ui-selected {
-    background-color: #f3f5ff !important;
+/*     background-color: #f3f5ff !important; */
     border: 1px solid #a7afd6 !important;
 }

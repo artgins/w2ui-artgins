@@ -4,17 +4,23 @@
     <title>w2ui Demos</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="bela-manifest" content="/w2ui/demos/specs/bela.json">
-<<<<<<< HEAD
-    <link rel="stylesheet" type="text/css" media="screen" href="index.css"/>
-=======
     <meta name="viewport" content="width=device-width, initial-scale=0.75, minimum-scale=0.5, maximum-scale=3.0"/>
->>>>>>> 65bd903964cd06b2f0b8b4a4f1365a741f7794f3
     <link rel="stylesheet" type="text/css" media="screen" href="../dist/w2ui.css" id="mainCSS">
     <link rel="stylesheet" type="text/css" media="screen" href="../libs/font-awesome/css/font-awesome.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="bulma.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="index.css"/>
     <script type="module" src="code-mirror.js"></script>
     <script type="module" src="index.js"></script>
 </head>
 <body>
     <div id="demo_layout"></div>
+    <script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initialize bulma theme on load
+        document.documentElement.setAttribute("data-theme", 'light');
+    });
+
+    </script>
 </body>
 </html>
